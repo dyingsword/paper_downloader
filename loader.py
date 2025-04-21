@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 
 #列出所需 DBLP 的作者搜索和文献搜索 API 地址
 DBLP_AUTHOR_API = "https://dblp.org/search/author/api"
@@ -41,4 +42,22 @@ def get_author_pid(name: str, time_out: float = 10.0) -> str:
 
     pid = pid_url.split("https://dblp.org/pid/")[-1]
     return pid
-print(get_author_pid("Ya-qin Zhang"))
+def get_author_publications(pid: str, timeout: float = 10.0) -> list:
+    """
+    给定作者 PID，从 DBLP 获取其所有论文标题列表
+    """
+    url = f"https://dblp.org/pid/{pid}.xml"
+    resp = requests.get(url, timeout=timeout)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "xml")
+
+    publications = []
+
+    # 遍历所有 <r> 标签（每条记录），提取标题
+    for r in soup.find_all("r"):
+        title_tag = r.find("title")
+        if title_tag and title_tag.text:
+            publications.append(title_tag.text.strip())
+
+    return publications
