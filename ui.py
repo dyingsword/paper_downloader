@@ -30,11 +30,15 @@ class ui():
 
     def search(self):
         scientist_name = self.entry.get()
-        pid=ld.get_author_pid( scientist_name)
-        result=ld.get_author_publications(pid)
-        self.output_text.delete("1.0", tk.END)
-        for item in result:
-           self.output_text.insert(tk.END, item + "\n")
+        try:
+            pid=ld.get_author_pid( scientist_name)
+            result=ld.get_author_publications(pid)
+            self.output_text.delete("1.0", tk.END)
+            for item in result:
+                self.output_text.insert(tk.END, item + "\n")
+        except ValueError as e:
+             self.output_text.insert(tk.END, e)
+        
 
 # 定义搜索按钮响应事件方法，为了保证class的泛用性
 
